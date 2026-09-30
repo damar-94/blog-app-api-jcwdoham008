@@ -49,3 +49,82 @@ model Post {
 
   @@map("posts")
 }
+
+// UNTUK MINI PROJECT
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  @@map("categories")
+}
+
+model Event {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String
+  location      String
+  totalSeat     Int
+  availableSeat Int
+  startDate     DateTime
+  endDate       DateTime
+  thumbnail     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("events")
+}
+
+model Voucher {
+  id            Int      @id @default(autoincrement())
+  code          String
+  notes         String
+  discountValue Int
+  maxUsage      Int
+  usedCount     Int
+  startAt       DateTime
+  expiresAt     DateTime
+  isActive      Boolean
+  createdAt     DateTime @default(now())
+
+  @@map("vouchers")
+}
+
+model TicketType {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Int
+  totalSeat Int
+  available Int
+  createdAt DateTime @default(now())
+
+  @@map("ticketType")
+}
+
+model TransactionItem {
+  id       Int @id @default(autoincrement())
+  quantity Int
+  price    Int
+
+  @@map("transactionItem")
+}
+
+model Attendance {
+  id             Int      @id @default(autoincrement())
+  ticketQuantity Int
+  attended       Boolean
+  checkedInAt    DateTime
+
+  @@map("attendance")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@map("review")
+}
