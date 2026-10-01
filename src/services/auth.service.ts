@@ -2,6 +2,8 @@ import argon from "argon2";
 import { User } from "../generated/prisma/client.js";
 import { ApiError } from "../utils/api-error.js";
 import { prisma } from "../lib/prisma.js";
+import { loginSchema } from "../validators/auth.validator.js";
+import jwt from "jsonwebtoken";
 
 export const registerService = async (
   body: Pick<User, "name" | "email" | "password">,
@@ -28,4 +30,39 @@ export const registerService = async (
   });
   //5. return success
   return { message: "register success!" };
+};
+
+export const loginService = async (body: loginSchema) => {
+  // 1. cek dulu emailnya udah ada di db atau tidak
+  const user = await prisma.user.findUnique({
+    where: { email: body.email },
+  });
+
+  // 2. kalau emailnya tidak ada di db, throw error
+  if (!user) throw new ApiError("Invalid credentials", 400);
+
+  // 3. cek passwordnya, bener atau tidak
+  const isPassMatch = await argon.verify(user.password, body.password);
+
+  // 4. kalo passwordnya salah, throw error
+  if (!isPassMatch) throw new ApiError("Invalid credentials", 400);
+
+  // 5. generate accessToken (jwt)
+  const payload = { id: user.id, role: user.role };
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET!, {
+    expiresIn: "1d",
+  });
+
+  // 6. return message login success + data user + access tokennya
+  return {
+    message: "Login success",
+    accessToken: accessToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profilePic: user.profilePic,
+    },
+  };
 };
